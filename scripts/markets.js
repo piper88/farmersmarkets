@@ -7,6 +7,20 @@
   };
 
   Markets.all = [];
+  //
+  // Markets.getFromApi = function(data) {
+  //   console.log('in getFromApi');
+  //   Markets.all = data;
+  //   if (!rows.length) {
+  //     Markets.all.results.forEach(function(singleMarket) {
+  //       var market = new Markets(singleMarket);
+  //       market.insertRecord();
+  //     });
+  //   }
+  //   webDB.execute('SELECT * from marketdata', function(rows) {
+  //     console.log('oh hai');
+  //   });
+  // };
 
   //function to get the data from local database if it exists, if not, get from api
   Markets.getData = function() {
@@ -23,21 +37,32 @@
           contentType: "application/json; charset=utf-8",
           url: 'http://search.ams.usda.gov/farmersmarkets/v1/data.svc/zipSearch?zip=98103',
           dataType: 'jsonp',
-          jsonpCallback: 'Markets.getFromApi',
+          success: function(data) {
+            Markets.all = data;
+            if (!rows.length) {
+              Markets.all.results.forEach(function(singleMarket) {
+                var market = new Markets(singleMarket);
+                market.insertRecord();
+              });
+            }
+          }
         });
       }
     });
   };
 
   //function to create the websql table, then call the get data after created
-  Markets.createTable = function(next) {
+  Markets.createTable = function() {
     console.log('in createTable');
     webDB.execute(
       'CREATE TABLE IF NOT EXISTS marketdata (' +
       'id INTEGER PRIMARY KEY, ' +
-      'marketname VARCHAR(255);'
+      'marketname VARCHAR(255);',
+    function () {
+      console.log('successfully set up markets table');
+    }
     );
-    Markets.getData();
+    // Markets.getData();
   };
 
   //function to insert Markets record into websql table
@@ -54,21 +79,8 @@
     );
   };
 
-  Markets.getFromApi = function(data) {
-    console.log('in getFromApi');
-    Markets.all = data;
-    if (!rows.length) {
-      Markets.all.results.forEach(function(singleMarket) {
-        var market = new Markets(singleMarket);
-        market.insertRecord();
-      });
-    }
-    webDB.execute('SELECT * from marketdata', function(rows) {
-      console.log('oh hai');
-    });
-  };
-
   Markets.createTable();
+  Markets.getData();
 
   module.Markets = Markets;
 })(window);
