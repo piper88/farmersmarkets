@@ -1,86 +1,108 @@
 (function(module) {
-
-  function Markets (opts) {
+  // Permit constructor
+  function Market (opts) {
     for (keys in opts) {
       this[keys] = opts[keys];
-    };
-  };
+    }
+  }
 
-  Markets.all = [];
-  //
-  // Markets.getFromApi = function(data) {
-  //   console.log('in getFromApi');
-  //   Markets.all = data;
-  //   if (!rows.length) {
-  //     Markets.all.results.forEach(function(singleMarket) {
-  //       var market = new Markets(singleMarket);
-  //       market.insertRecord();
-  //     });
-  //   }
-  //   webDB.execute('SELECT * from marketdata', function(rows) {
-  //     console.log('oh hai');
-  //   });
-  // };
+  Market.all = [];
 
-  //function to get the data from local database if it exists, if not, get from api
-  Markets.getData = function() {
-    console.log('in getData');
-    webDB.execute('SELECT * from marketdata', function(rows) {
-      console.log('in getData 2');
+  Market.getData = function() {
+    webDB.execute('SELECT * FROM marketdata', function(rows) {
       if (rows.length) {
-        console.log('in getData, rows exist');
-        Markets.all = rows;
+        console.log('Market.getData: inside if');
+        Market.all = rows;
       } else {
-        console.log('in getData, rows do not exist');
+        console.log('Market.getData: inside else');
         $.ajax({
-          type: 'GET',
+          type: "GET",
           contentType: "application/json; charset=utf-8",
-          url: 'http://search.ams.usda.gov/farmersmarkets/v1/data.svc/zipSearch?zip=98103',
+          url: "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/zipSearch?zip=98103",
+
           dataType: 'jsonp',
           success: function(data) {
-            Markets.all = data;
+            Market.all = data;
             if (!rows.length) {
-              Markets.all.results.forEach(function(singleMarket) {
-                var market = new Markets(singleMarket);
-                market.insertRecord();
+              Market.all.forEach(function(singleMarket) {
+                var market = new Market(singleMarket);
+                market.insertPermit();
               });
             }
           }
+
         });
       }
     });
   };
 
-  //function to create the websql table, then call the get data after created
-  Markets.createTable = function() {
-    console.log('in createTable');
+//   function searchResultsHandler(data) {
+//     Market.all = data;
+//     if (!rows.length) {
+//       Market.all.forEach(function(singleMarket) {
+//         var market = new Market(singleMarket);
+//         market.insertPermit();
+//       });
+//     }
+//
+//   };
+//
+//   function getResults(zip) {
+//     // or
+//     // function getResults(lat, lng) {
+//     $.ajax({
+//         type: "GET",
+//         contentType: "application/json; charset=utf-8",
+//         // submit a get request to the restful service zipSearch or locSearch.
+//         url: "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/zipSearch?zip=" + zip,
+//         // or
+//         // url: "http://search.ams.usda.gov/farmersmarkets/v1/data.svc/locSearch?lat=" + lat + "&lng=" + lng,
+//         dataType: 'jsonp',
+//         jsonpCallback: 'searchResultsHandler'
+//     });
+// }
+// //iterate through the JSON result object.
+// function searchResultsHandler(searchResults) {
+//     for (var key in searchresults) {
+//         alert(key);
+//         var results = searchresults[key];
+//         for (var i = 0; i < results.length; i++) {
+//             var result = results[i];
+//             for (var key in result) {
+//                 //only do an alert on the first search result
+//                 if (i == 0) {
+//                     alert(result[key]);
+//                 }
+//             }
+//         }
+//     }
+// }
+
+  Market.createTable = function(next) {
+    console.log('inside Market.createTable');
     webDB.execute(
       'CREATE TABLE IF NOT EXISTS marketdata (' +
-      'id INTEGER PRIMARY KEY, ' +
-      'marketname VARCHAR(255);',
-    function () {
-      console.log('successfully set up markets table');
-    }
+        'id INTEGER PRIMARY KEY, ' +
+        'address VARCHAR(255), ' +
+        'city_feature VARCHAR(255));'
+
     );
-    // Markets.getData();
+    Market.getData();
   };
 
-  //function to insert Markets record into websql table
-
-  Markets.prototype.insertRecord = function() {
-    console.log('in insertRecord');
+  Market.prototype.insertPermit = function () {
     webDB.execute(
       [
         {
-          'sql': 'INSERT INTO marketdata(id, marketname) VALUES (?, ?);',
-          'data': [this.results.id, this.results.marketname],
+          'sql': 'INSERT INTO marketdata(address, city_feature) VALUES (?, ?);',
+          'data': [this.address, this.city_feature],
         }
       ]
     );
   };
 
-  Markets.createTable();
-  Markets.getData();
+  Market.createTable();
+  // Market.getData();
 
-  module.Markets = Markets;
+  module.Market = Market;
 })(window);

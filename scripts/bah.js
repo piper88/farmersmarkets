@@ -1,65 +1,60 @@
+//safe js that actually works and inserts data into websql db
 (function(module) {
-  // var sortedByDistancePermits = [];
   // Permit constructor
-  function Permit (opts) {
+  function Market (opts) {
     for (keys in opts) {
       this[keys] = opts[keys];
     }
-    // this.URL = opts.Permit_and_complaint_status_url.url;
   }
 
-  Permit.all = [];
+  Market.all = [];
 
-  Permit.getData = function(next) {
-    webDB.execute('SELECT * FROM Permitdata', function(rows) {
+  Market.getData = function() {
+    webDB.execute('SELECT * FROM marketdata', function(rows) {
       if (rows.length) {
-        console.log('Permit.getData: inside if');
-        Permit.all = rows;
-        // theMap.dropAllPins(rows, next);
+        console.log('Market.getData: inside if');
+        Market.all = rows;
       } else {
-        console.log('Permit.getData: inside else');
-        //debugger;
-        $.get('https://data.seattle.gov/resource/3c4b-gdxv.json', function(data) {
-          Permit.all = data;
+        console.log('Market.getData: inside else');
+        $.get('https://data.seattle.gov/resource/3c4b-gdxv.json',
+        function(data) {
+          Market.all = data;
           if (!rows.length) {
-            Permit.all.forEach(function(singlePermit) {
-              var Permit = new Permit(singlePermit);
-              Permit.insertPermit();
+            Market.all.forEach(function(singleMarket) {
+              var market = new Market(singleMarket);
+              market.insertPermit();
             });
           }
-          // webDB.execute('SELECT * FROM Permitdata', function(rows) {
-          //   theMap.dropAllPins(rows, next);
-          // });
         });
       }
     });
   };
 
-  Permit.createTable = function() {
-    console.log('inside Permit.createTable');
+  Market.createTable = function(next) {
+    console.log('inside Market.createTable');
     webDB.execute(
-      'CREATE TABLE IF NOT EXISTS Permitdata (' +
+      'CREATE TABLE IF NOT EXISTS marketdata (' +
         'id INTEGER PRIMARY KEY, ' +
-        'name VARCHAR(255) NOT NULL); '
+        'address VARCHAR(255), ' +
+        'city_feature VARCHAR(255));'
 
-      // callback
     );
-    Permit.getData();
+    Market.getData();
   };
 
-  Permit.prototype.insertPermit = function () {
+  Market.prototype.insertPermit = function () {
     webDB.execute(
       [
         {
-          'sql': 'INSERT INTO Permitdata(name) VALUES (?);',
-          'data': [this.name],
+          'sql': 'INSERT INTO marketdata(address, city_feature) VALUES (?, ?);',
+          'data': [this.address, this.city_feature],
         }
       ]
     );
   };
 
-  Permit.createTable();
-  // Permit.getData();
+  Market.createTable();
+  // Market.getData();
 
-  module.Permit = Permit;
+  module.Market = Market;
 })(window);

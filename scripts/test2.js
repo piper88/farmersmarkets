@@ -38,14 +38,14 @@
         'city_feature VARCHAR(255));'
 
     );
-    // Market.getData();
+    Market.getData();
   };
 
   Market.prototype.insertPermit = function () {
     webDB.execute(
       [
         {
-          'sql': 'INSERT INTO markettdata(address, city_feature) VALUES (?, ?);',
+          'sql': 'INSERT INTO marketdata(address, city_feature) VALUES (?, ?);',
           'data': [this.address, this.city_feature],
         }
       ]
@@ -53,7 +53,7 @@
   };
 
   Market.createTable();
-  Market.getData();
+  // Market.getData();
 
   module.Market = Market;
 })(window);
