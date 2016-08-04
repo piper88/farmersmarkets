@@ -104,7 +104,9 @@
     return template(this);
   };
 
-  Market.createTable();
+//put this line in the marketController file...perhaps correct, perhaps not
+  // Market.createTable();
+  marketController.loadMarketsByZip();
 
   module.Market = Market;
 })(window);
