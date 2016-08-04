@@ -2,17 +2,51 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <title></title>
+    <title>Farmer's Markets Near Me</title>
+
+    <script id="list-of-markets" type="text/x-handlebars-template">
+      <section class="list-display">
+        <h4><strong>Name: </strong>{{marketname}}</h4>
+        <button id={{{id}}} class="show-more">Show Details of this market</button>
+        <button class="show-less">Hide Details</button>
+        <!-- <p><strong>Distance from zip code:</strong>{{distance}}</p> -->
+      </section>
+    </script>
+    <script id="market-details" type="text/x-handlebars-template">
+      <section class="detail-display">
+        <h5><strong>Address: </strong>{{Address}}</h5>
+        <h5><strong>Schedule: </strong>{{{Schedule}}}</h5>
+        <h5><strong>Products: </strong>{{Products}}</h5>
+
+      </section>
+    </script>
+
   </head>
   <body>
-    <!-- <script src="vendors/jquery-2.1.4.js"></script> -->
-    <script   src="https://code.jquery.com/jquery-2.1.4.min.js"   integrity="sha256-8WqyJLuWKRBVhxXIL1jBDD7SDxU936oZkCnxQbWwJVw="   crossorigin="anonymous"></script>
-    <script src="vendors/html5sql.js"></script>
-    <script src="vendors/webdb.js"></script>
-    <!-- <script src="scripts/test2.js"></script> -->
-    <!-- <script src="scripts/test.js"></script> -->
-    <script src="scripts/markets.js"></script>
-    <!-- <script src="scripts/bah.js"></script> -->
+    <form id="formiepoo">
+      Zip Code: <br>
+      <input type="text" name="zip" id = "zip"></input>
+      <button type="submit">Find Farmer's Markets</button>
+    </form>
 
+    <section id="list-container" class="changeable-area">
+    </section>
+
+
+
+    <!-- vendors -->
+    <script src="https://code.jquery.com/jquery-2.1.4.min.js" integrity="sha256-8WqyJLuWKRBVhxXIL1jBDD7SDxU936oZkCnxQbWwJVw=" crossorigin="anonymous"></script>
+    <script src="vendors/scripts/handlebars.js"></script>
+    <script src="vendors/scripts/html5sql.js"></script>
+    <script src="vendors/scripts/webdb.js"></script>
+    <!-- models -->
+    <script src="scripts/models/markets.js"></script>
+    <script src="scripts/models/details.js"></script>
+    <!-- views -->
+    <script src="scripts/views/handlebars_compilers.js"></script>
+    <script src="scripts/views/listView.js"></script>
+    <script src="scripts/views/detailView.js"></script>
+    <!-- controllers -->
+    <script src="scripts/controllers/zipController.js"></script>
   </body>
 </html>
